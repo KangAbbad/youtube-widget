@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YT Widget</title>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+    integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2"
+    crossorigin="anonymous"
+  >
+  <style>
+    body {
+      background-color: #eaeaea;
+    }
+    p {
+      font-size: 14px;
+    }
+    .line-clamp {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .yt-channel-logo {
+      border-radius: 100%;
+    }
+    .yt-channel-name {
+      display: inline-block;
+    }
+    .yt-channel-name p {
+      font-size: 20px;
+    }
+    .yt-subscribe-btn {
+      background-color: #FF0000;
+      color: #FFFFFF;
+      font-size: 12px;
+      padding: 8px 14px;
+      border-radius: 5px;
+      border: 0;
+    }
+    .yt-subscribe-btn:hover {
+      background-color: #ff3b3b;
+    }
+    .yt-subscribe-btn:active,
+    .yt-subscribe-btn:focus {
+      outline: 0;
+    }
+    .yt-video-link:hover,
+    .yt-video-link:focus,
+    .yt-video-link:active {
+      text-decoration: none;
+    }
+    .yt-video-link:hover h6,
+    .yt-video-link:focus h6,
+    .yt-video-link:active h6 {
+      text-decoration: underline;
+    }
+    .yt-summary {
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container bg-white text-dark p-3 mx-auto">
+    <div class="row">
+      <div class="col-12 col-md-8">
+        <div class="row">
+          <div class="col-12 col-md-3 col-lg-2 text-center text-md-left">
+            <img class="yt-channel-logo d-block mx-auto img-fluid" />
+          </div>
+          <div class="col-12 col-md-9 col-lg-10 align-self-center text-center text-md-left">
+            <a target="_blank" class="yt-channel-name text-dark"></a>
+            <p class="yt-summary text-black-50 mb-0">
+              <span class="yt-channel-subscribers">0</span> Subscribers • <span class="yt-channel-videos">0</span> Video • <span class="yt-channel-views">0</span> Views
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-4 align-self-center text-center text-md-right">
+        <button class="yt-subscribe-btn mt-4 mt-md-0 mr-md-4">
+          SUBSCRIBE
+        </button>
+      </div>
+    </div>
+
+    <div class="yt-list row mt-5"></div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
+  <script>
+    function numberFormatter(num) {
+      const noRound = (num) => num.toString().match(/^-?\d+(?:\.\d{0,2})?/)[0];
+
+      if (num > 1000000) {
+        const decimal = num / 1000000;
+        return `${noRound(decimal)}JT`;
+      }
+
+      if (num > 1000) {
+        const decimal = num / 1000;
+        return `${noRound(decimal)}RB`;
+      }
+
+      return num;
+    }
+
+    const API_KEY = ''; // Your Google API KEY
+    const CHANNEL_ID = 'UCAxg3JQ7K80VYoQZpx5i_3g'; // Your Youtube Channel ID
+    const MAX_RESULT = 9;
+    const PART = 'snippet,statistics';
+    const TYPE = 'video';
+
+    const BASE_URL = `https://www.googleapis.com/youtube/v3`
+    const GET_SEARCH_URL = `${BASE_URL}/search?type=${TYPE}&channelId=${CHANNEL_ID}&maxResults=${MAX_RESULT}&key=${API_KEY}`
+    const GET_CHANNEL_URL = `${BASE_URL}/channels?part=${PART}&id=${CHANNEL_ID}&key=${API_KEY}`
+
+    axios.get(GET_CHANNEL_URL)
+      .then((res) => {
+        console.log(res.data.items[0]);
+        const { id, snippet, statistics } = res.data.items[0];
+        const { title, thumbnails } = snippet;
+        const { subscriberCount, videoCount, viewCount } = statistics;
+
+        document.querySelector('.yt-channel-logo').src = thumbnails.default.url;
+        document.querySelector('.yt-channel-logo').alt = title;
+        document.querySelector('.yt-channel-name').href = `https://www.youtube.com/channel/${id}`;
+        document.querySelector('.yt-channel-name').innerHTML = `<p class="mt-2 mt-md-0 mb-1">${title}</p>`;
+        document.querySelector('.yt-channel-subscribers').innerHTML = numberFormatter(subscriberCount);
+        document.querySelector('.yt-channel-videos').innerHTML = numberFormatter(subscriberCount);
+        document.querySelector('.yt-channel-views').innerHTML = numberFormatter(viewCount);
+
+        document.querySelector('.yt-subscribe-btn').addEventListener('click', function() {
+          window.open(`https://www.youtube.com/channel/${id}`);
+        });
+        document.querySelector('.yt-channel-logo').addEventListener('mouseover', function(event) {
+          event.target.style.cursor = 'pointer';
+        });
+        document.querySelector('.yt-channel-logo').addEventListener('click', function() {
+          window.open(`https://www.youtube.com/channel/${id}`);
+        });
+      });
+
+    let videos = [];
+    axios.get(GET_SEARCH_URL)
+      .then((res) => {
+        res.data.items.forEach((item) => {
+          const GET_VIDEO_URL = `${BASE_URL}/videos?part=${PART}&id=${item.id.videoId}&key=${API_KEY}`
+
+          axios.get(GET_VIDEO_URL)
+            .then((res_video) => {
+              const { id, snippet, statistics } = res_video.data.items[0];
+              const { title, description, publishedAt } = snippet;
+              const { viewCount, likeCount, commentCount } = statistics;
+
+              const formatPublishedAt = dayjs(publishedAt).format('DD/MM/YYYY');
+              const formatViewCount = numberFormatter(viewCount);
+              const formatLikeCount = numberFormatter(likeCount);
+              const formatCommentCount = numberFormatter(commentCount);
+
+              const video = `
+                <div class="col-12 col-md-6 col-lg-4">
+                  <a href="https://www.youtube.com/watch?v=${id}" target="_blank" class="yt-video-link">
+                    <div class="embed-responsive embed-responsive-16by9">
+                      <iframe
+                        src="https://www.youtube.com/embed/${id}"
+                        class="embed-responsive-item"
+                        allowfullscreen
+                      ></iframe>
+                    </div>
+                    <h6 class="text-dark text-truncate pt-3 pb-2 mb-0">
+                      ${title}
+                    </h6>
+                    <p class="text-black-50 mb-2">
+                      ${formatPublishedAt}
+                    </p>
+                    <p class="text-dark line-clamp">
+                      ${description}
+                    </p>
+                    <p class="yt-summary text-black-50">
+                      ${formatViewCount} Views • ${formatLikeCount} Likes • ${formatCommentCount} Comments
+                    </p>
+                  </a>
+                </div>
+              `
+              videos.push(video);
+              document.querySelector('.yt-list').innerHTML = videos.join('');
+            });
+        })
+      });
+  </script>
+</body>
+</html>
