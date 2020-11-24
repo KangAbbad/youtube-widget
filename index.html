@@ -122,7 +122,7 @@
     const GET_CHANNEL_URL = `${BASE_URL}/channels?part=${PART}&id=${CHANNEL_ID}&key=${API_KEY}`
 
     axios.get(GET_CHANNEL_URL)
-      .then((res) => {
+      .then(function (res) {
         console.log(res.data.items[0]);
         const { id, snippet, statistics } = res.data.items[0];
         const { title, thumbnails } = snippet;
@@ -149,12 +149,12 @@
 
     let videos = [];
     axios.get(GET_SEARCH_URL)
-      .then((res) => {
-        res.data.items.forEach((item) => {
+      .then(function (res) {
+        res.data.items.forEach(function (item) {
           const GET_VIDEO_URL = `${BASE_URL}/videos?part=${PART}&id=${item.id.videoId}&key=${API_KEY}`
 
           axios.get(GET_VIDEO_URL)
-            .then((res_video) => {
+            .then(function (res_video) {
               const { id, snippet, statistics } = res_video.data.items[0];
               const { title, description, publishedAt } = snippet;
               const { viewCount, likeCount, commentCount } = statistics;
